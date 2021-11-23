@@ -1,171 +1,148 @@
-# ShapleyValuesVAEAC
-Computing Shapley values using VAEAC
+# Shapley values and the VAEAC method
 
+In this GitHub repository, we present the implementation of the `VAEAC` approach from our paper "Using Shapley Values and Variational Autoencoders to Explain Predictive Models with Dependent Mixed Features", see [Olsen et al. (2021)](http://arxiv.com). 
 
-# Variational Autoencoder with Arbitrary Conditioning
+The variational autoencoder with arbitrary condiditioning (`VAEAC`) approach is based on the work of (Ivanov et al., 2019). The `VAEAC` is an extension of 
+the regular variational autoencoder (Kingma and Welling, 2019). Instead of giving a probabilistic representation for the distribution ![equation](https://latex.codecogs.com/svg.latex?p(\boldsymbol{x})) it gives a representation for the conditional ![equation](https://latex.codecogs.com/svg.latex?p(\boldsymbol{x}_{\mathcal{S}}&space;\mid&space;\boldsymbol{x}_{\bar{\mathcal{S}}})), for all possible feature subsets 
+![equation](https://latex.codecogs.com/svg.latex?\mathcal{S}\subseteq\mathcal{M}) simultaneously, where ![equation](https://latex.codecogs.com/svg.latex?\mathcal{M}) is the set of all features.
 
-Variational Autoencoder with Arbitrary Conditioning (VAEAC) is
-a neural probabilistic model based on variational autoencoder
-that can be conditioned on an arbitrary subset of observed features and
-then sample the remaining features.
+To make the `VAEAC` methodology work in the Shapley value framework, established in the R-package [`Shapr`](https://github.com/NorskRegnesentral/shapr) (Sellereite and Jullum, 2019), we have made alterations to the [original implementation](https://github.com/tigvarts/vaeac) of Ivanov.
 
-For more detail, see the following paper:\
-Oleg Ivanov, Michael Figurnov, Dmitry Vetrov.
-Variational Autoencoder with Arbitrary Conditioning, ICLR 2019,
-[link](https://openreview.net/forum?id=SyxtJh0qYm).
+The `VAEAC` model in implemented in Pytorch, hence, that portion of the repository is written in Python.
+To compute the Shapley values, we have written necessary R-code to make the `VAEAC` approach run on top of the R-package `shapr`.
 
-This PyTorch code implements the model and reproduces the results
-from the paper.
 
 ## Setup
 
-Install prerequisites from `requirements.txt`.
-This code was tested on Linux (but it should work on Windows as well),
+In addition to the prerequisites required by [Ivanov](https://github.com/tigvarts/vaeac/blob/master/requirements.txt), we also need several R-packages. All prerequisites are specified in `requirements.txt`. 
+
+This code was tested on Linux and macOS.
+
 Python 3.6.4 and PyTorch 1.0.
 
-To run experiments with CelebA download dataset into some directory,
-unzip `img_align_celeba.zip` and set correct `celeba_root_dir`
-(i. e. which points to the root of the unzipped folder) in file `datasets.py`.
+Python:
+numpy==1.16.2
+pandas==0.24.2
+Pillow==4.2.1
+torch==1.0.1
+torchvision==0.2.2
+tqdm==4.31.1
 
-## Experiments
 
-## Missing Feature Multiple Imputation
+R version 4.0.2 (2020-06-22)
+Platform: x86_64-apple-darwin17.0 (64-bit)
+Running under: macOS Catalina 10.15.7
 
-To impute missing features with VAEAC one can use `impute.py`.
+R:
+reticulate==1.18
+abind==1.4-5
+shapr==0.2.0
 
-`impute.py` works with real-valued and categorical features.
-It takes tab-separated values (tsv) file as an input.
-NaNs in the input file indicate the missing features.
+## Example
 
-The output file is also a tsv file, where for each object
-there is `num_imputations` copies of it with NaNs replaced
-with different imputations.
-These copies with imputations are consecutive in the output file.
-For example, if `num_imputations` is 2,
-then the output file is structured as follows
+The following example shows how a simple xgboost model is trained using the Boston Housing Data, and how shapr explains the individual predictions.
+
+
+`shapr` supports computation of Shapley values with any predictive model
+which takes a set of numeric features and produces a numeric outcome.
+
+The following example shows how a simple `xgboost` model is trained
+using the *Boston Housing Data*, and how `shapr` explains the individual
+predictions.
+
+``` r
+# Import libraries
+library(shapr)
+library(ranger)
+library(data.table)
+
+# Load the R files needed for computing Shapley values using VAEAC.
+source("/Users/larsolsen/Desktop/PhD/R_Codes/Source_Shapr_VAEAC.R")
+
+# Set the working directory to be the root folder of the GitHub repository. 
+setwd("~/PhD/Paper1/Code_for_GitHub")
+
+# Read in the Abalone data set.
+abalone = readRDS("data/Abalone.data")
+str(abalone)
+
+# Predict rings based on Diameter, ShuckedWeight, and Sex (categorical), using a random forrest model.
+model = ranger(Rings ~ Diameter + ShuckedWeight + Sex, data = abalone[abalone$test_instance == FALSE,])
+
+# Specifying the phi_0, i.e. the expected prediction without any features.
+phi_0 <- mean(abalone$Rings[abalone$test_instance == FALSE])
+
+# Prepare the data for explanation. Diameter, ShuckedWeight, and Sex correspond to 3,6,9.
+explainer <- shapr(abalone[abalone$test_instance == FALSE, c(3,6,9)], model)
+#> The specified model provides feature classes that are NA. The classes of data are taken as the truth.
+
+# Train the VAEAC model with specified parameters and add it to the explainer
+explainer_added_vaeac = add_vaeac_to_explainer(
+  explainer, 
+  epochs = 30L,
+  width = 32L,
+  depth = 3L,
+  latent_dim = 8L,
+  lr = 0.002,
+  num_different_vaeac_initiate = 2L,
+  epochs_initiation_phase = 2L,
+  validation_iwae_num_samples = 25L,
+  verbose_summary = TRUE)
+
+# Computing the actual Shapley values with kernelSHAP accounting for feature dependence using
+# the VAEAC distribution approach with parameters defined above
+explanation = explain.vaeac(abalone[abalone$test_instance == TRUE][1:8,c(3,6,9)],
+                            approach = "vaeac",
+                            explainer = explainer_added_vaeac,
+                            prediction_zero = phi_0,
+                            which_vaeac_model = "best")
+
+# Printing the Shapley values for the test data.
+# For more information about the interpretation of the values in the table, see ?shapr::explain.
+print(explanation$dt)
+#>        none   Diameter ShuckedWeight        Sex
+#> 1: 9.927152  0.63282471     0.4175608  0.4499676
+#> 2: 9.927152 -0.79836795    -0.6419839  1.5737014
+#> 3: 9.927152 -0.93500891    -1.1925897 -0.9140548
+#> 4: 9.927152  0.57225851     0.5306906 -1.3036202
+#> 5: 9.927152 -1.24280895    -1.1766845  1.2437640
+#> 6: 9.927152 -0.77290507    -0.5976597  1.5194251
+#> 7: 9.927152 -0.05275627     0.1306941 -1.1755597
+#> 8: 9.927153  0.44593977     0.1788577  0.6895557
+
+# Finally, we plot the resulting explanations.
+plot(explanation, plot_phi0 = FALSE)
 ```
-object1_imputation1
-object1_imputation2
-object2_imputation1
-object2_imputation2
-object3_imputation1
-...
-```
-By default `num_imputations` is 5.
 
-One-hot max size is the number of different values of a categorical feature.
-The values are assumed to be integers from 0 to K - 1,
-where K is one-hot max size.
-For the real-valued feature one-hot max size is assumed to be 0 or 1.
+<img src="figures/Vignette_results.png" width="100%" />
 
-For example, for a dataset with a binary feature, three real-valued features
-and a categorical feature with 10 classes the correct `--one_hot_max_sizes`
-arguments are 2 1 1 1 10.
 
-Validation ratio is the ratio of objects which will be used for validation
-and the best model selection.
 
-So the minial working example of calling `impute.py` is
-```
-python impute.py --input_file input_data.tsv --output_file data_imputed.tsv \
-                 --one_hot_max_sizes 2 1 1 1 10 --num_imputations 25 \
-                 --epochs 1000 --validation_ratio 0.15
-```
 
-Validation IWAE samples is a number of latent samples
-for each object IWAE evaluation.
-
-Use last checkpoint flag forces `impute.py` to use the state of the model
-at the end of the training procedure for imputation.
-By default, the best model according to IWAE validation score is used.
-
-See `python impute.py --help` for more options.
-
-One can reproduce paper results for mushroom, yeast and white wine datasets
-by the following commands:
-```
-cd data
-./fetch_data.sh
-python prepare_data.py
-mkdir -p imputations
-python ../impute.py --input_file train_test_split/yeast_train.tsv \
-                    --output_file imputations/yeast_imputed.tsv \
-                    --one_hot_max_sizes 1 1 1 1 1 1 1 1 10 \
-                    --num_imputations 10 --epochs 300 --validation_ratio 0.15
-python ../impute.py --input_file train_test_split/mushroom_train.tsv \
-                    --output_file imputations/mushroom_imputed.tsv \
-                    --one_hot_max_sizes 6 4 10 2 9 2 2 2 12 2 4 4 4 9 9 4 3 5 9 6 7 2 \
-                    --num_imputations 10 --epochs 50 --validation_ratio 0.15
-python ../impute.py --input_file train_test_split/white_train.tsv \
-                    --output_file imputations/white_imputed.tsv \
-                    --one_hot_max_sizes 1 1 1 1 1 1 1 1 1 1 1 1 \
-                    --num_imputations 10 --epochs 500 --validation_ratio 0.15
-python evaluate_results.py yeast 1 1 1 1 1 1 1 1 10
-python evaluate_results.py mushroom 6 4 10 2 9 2 2 2 12 2 4 4 4 9 9 4 3 5 9 6 7 2
-python evaluate_results.py white 1 1 1 1 1 1 1 1 1 1 1 1
-cd ..
-```
-
-## Inpainting
-
-Unlike missing features imputation, image inpainting usually use
-a dataset with no missing features and an unobserved region mask generator
-to learn to inpaint.
-
-In this repository there is all necessary code to reproduce CelebA
-inpaintings from the paper.
-It includes CelebA dataset wrapper, all mask generators from the paper,
-and a model architecture.
-The code is written in such way, so you'll find it easy to use
-it with new datasets, mask generators, model architectures,
-reconstruction losses, optimizers, etc.
-
-Image inpainting process is splitted into several stages:
-1. Firstly one define a model together with its optimizer, loss and
-mask generator in `model.py` file in a separate directory.
-Such model for the paper is provided in `celeba_model` directory.
-2. Secondly, one implement image datasets (train, validation and test images
-together with test masks), and add them into `datasets.py`.
-One can use CelebA dataset which is already implemented (but not downloaded!)
-and skip this step.
-3. Then one train the model using
-```
-python train.py --model_dir celeba_model --epochs 40 \
-                --train_dataset celeba_train --validation_dataset celeba_val
-```
-See `python train.py --help` for more options.
-
-As a result two files are created in `celeba_model` directory:
-`last_checkpoint.tar` and `best_checkpoint.tar`.
-Second one is the best checkpoint according to IWAE on the validation set.
-It is used for inpainting by deafult.
-
-If these files are already in `model_dir` when `train.py` is started,
-`train.py` use `last_checkpoint.tar` as an initial state for training.
-
-One can also download pretrained model
-from [here](https://yadi.sk/d/l4cRWuuHIaZQJQ),
-put it into `celeba_model` directory and skip this step.
-
-4. After that, one can inpaint the test set by calling
-```
-python inpaint.py --model_dir celeba_model --num_samples 3 \
-                  --masks celeba_inpainting_masks --dataset celeba_test \
-                  --out_dir celeba_inpaintings
-```
-See `python inpaint.py --help` for more options.
 
 ## Citation
 
-If you find this code useful in your research,
-please consider citing the paper:
+If you find this code useful in your research, please consider citing our paper:
 ```
-@inproceedings{
-    ivanov2018variational,
-    title={Variational Autoencoder with Arbitrary Conditioning},
-    author={Oleg Ivanov and Michael Figurnov and Dmitry Vetrov},
-    booktitle={International Conference on Learning Representations},
-    year={2019},
-    url={https://openreview.net/forum?id=SyxtJh0qYm},
+@article{
+  Olsen2021Shapley,
+  title={Using Shapley Values and Variational Autoencoders to Explain Predictive Models with Mixed Features},
+  author={Lars Henry Berge Olsen and Ingrid Kristine Glad and Kjersti Aas and Martin Jullum},    
+  journal = {TO BE ADDED},
+  volume = {TO BE ADDED},
+  pages = {TO BE ADDED},
+  year = {2021},
+  issn = {TO BE ADDED},
+  doi = {TO BE ADDED},
+  url = {TO BE ADDED}
 }
 ```
+
+## References
+
+Ivanov,  O.,  Figurnov,  M.,  and  Vetrov,  D.  (2019).  “Variational  Autoencoder  with  ArbitraryConditioning”. In:International Conference on Learning Representations.
+
+Kingma, D. P. and Welling, M. (2014). "Auto-Encoding Variational Bayes". In: 2nd International Conference on Learning Representations, ICLR 2014.
+
+Sellereite,  N.  and  Jullum,  M.  (2019).  “shapr:  An  R-package  for  explaining  machine  learningmodels with dependence-aware Shapley values”. In:Journal of Open Source Softwarevol. 5,no. 46, p. 2027.
+
