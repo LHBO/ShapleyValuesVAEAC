@@ -8,23 +8,25 @@ the regular variational autoencoder (Kingma and Welling, 2019). Instead of givin
 
 To make the `VAEAC` methodology work in the Shapley value framework, established in the R-package [`Shapr`](https://github.com/NorskRegnesentral/shapr) (Sellereite and Jullum, 2019), we have made alterations to the [original implementation](https://github.com/tigvarts/vaeac) of Ivanov.
 
-The `VAEAC` model in implemented in Pytorch, hence, that portion of the repository is written in Python.
-To compute the Shapley values, we have written necessary R-code to make the `VAEAC` approach run on top of the R-package `shapr`.
+The `VAEAC` model is implemented in Pytorch, hence, that portion of the repository is written in Python.
+To compute the Shapley values, we have written the necessary R-code to make the `VAEAC` approach run on top of the R-package `shapr`.
 
 
 ## Setup
 
 In addition to the prerequisites required by [Ivanov](https://github.com/tigvarts/vaeac/blob/master/requirements.txt), we also need several R-packages. All prerequisites are specified in `requirements.txt`. 
 
-This code was tested on Linux and macOS (should also work on Windows as well), Python 3.6.4, PyTorch 1.0. and R 4.0.2.
+This code was tested on Linux and macOS (should also work on Windows), Python 3.6.4, PyTorch 1.0. and R 4.0.2.
+
+To user has to specify the system path to the Python environment and the system path of the downloaded repository in `Source_Shapr_VAEAC.R`.
 
 
 
 ## Example
 
-The following example shows how a random forrest model is trained on the *Abalone* data set from the UCI machine learning repository, and how `shapr` explains the individual predictions.
+The following example shows how a random forest model is trained on the *Abalone* data set from the UCI machine learning repository, and how `shapr` explains the individual predictions.
 
-Note that we only use **Diameter**(continuous), **ShuckedWeight**(continuous), and **Sex**(categoircal) as features and let the response be **Rings**, that is, the age of the abalone.
+Note that we only use **Diameter** (continuous), **ShuckedWeight** (continuous), and **Sex** (categorical) as features and let the response be **Rings**, that is, the age of the abalone.
 
 
 ``` r
