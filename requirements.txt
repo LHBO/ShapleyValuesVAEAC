@@ -1,0 +1,14 @@
+Python (3.6.4):
+matplotlib==3.0.3
+numpy~=1.19.1
+pandas==0.24.2
+Pillow==4.2.1
+torch==1.0.1
+torchvision==0.2.2
+tqdm==4.31.1
+PyTorch==1.0
+
+R (4.0.2):
+reticulate==1.18
+abind==1.4-5
+shapr==0.2.0
