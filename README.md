@@ -16,39 +16,16 @@ To compute the Shapley values, we have written necessary R-code to make the `VAE
 
 In addition to the prerequisites required by [Ivanov](https://github.com/tigvarts/vaeac/blob/master/requirements.txt), we also need several R-packages. All prerequisites are specified in `requirements.txt`. 
 
-This code was tested on Linux and macOS.
-
-Python 3.6.4 and PyTorch 1.0.
-
-Python:
-numpy==1.16.2
-pandas==0.24.2
-Pillow==4.2.1
-torch==1.0.1
-torchvision==0.2.2
-tqdm==4.31.1
+This code was tested on Linux and macOS (should also work on Windows as well), Python 3.6.4, PyTorch 1.0. and R 4.0.2.
 
 
-R version 4.0.2 (2020-06-22)
-Platform: x86_64-apple-darwin17.0 (64-bit)
-Running under: macOS Catalina 10.15.7
-
-R:
-reticulate==1.18
-abind==1.4-5
-shapr==0.2.0
 
 ## Example
 
-The following example shows how a simple xgboost model is trained using the Boston Housing Data, and how shapr explains the individual predictions.
+The following example shows how a random forrest model is trained on the *Abalone* data set from the UCI machine learning repository, and how `shapr` explains the individual predictions.
 
+Note that we only use **Diameter**(continuous), **ShuckedWeight**(continuous), and **Sex**(categoircal) as features and let the response be **Rings**, that is, the age of the abalone.
 
-`shapr` supports computation of Shapley values with any predictive model
-which takes a set of numeric features and produces a numeric outcome.
-
-The following example shows how a simple `xgboost` model is trained
-using the *Boston Housing Data*, and how `shapr` explains the individual
-predictions.
 
 ``` r
 # Import libraries
@@ -100,7 +77,7 @@ explanation = explain.vaeac(abalone[abalone$test_instance == TRUE][1:8,c(3,6,9)]
 # Printing the Shapley values for the test data.
 # For more information about the interpretation of the values in the table, see ?shapr::explain.
 print(explanation$dt)
-#>        none   Diameter ShuckedWeight        Sex
+#>        none   Diameter  ShuckedWeight        Sex
 #> 1: 9.927152  0.63282471     0.4175608  0.4499676
 #> 2: 9.927152 -0.79836795    -0.6419839  1.5737014
 #> 3: 9.927152 -0.93500891    -1.1925897 -0.9140548
@@ -119,7 +96,6 @@ plot(explanation, plot_phi0 = FALSE)
 
 
 
-
 ## Citation
 
 If you find this code useful in your research, please consider citing our paper:
@@ -127,7 +103,7 @@ If you find this code useful in your research, please consider citing our paper:
 @article{
   Olsen2021Shapley,
   title={Using Shapley Values and Variational Autoencoders to Explain Predictive Models with Mixed Features},
-  author={Lars Henry Berge Olsen and Ingrid Kristine Glad and Kjersti Aas and Martin Jullum},    
+  author={Lars Henry Berge Olsen and Ingrid Kristine Glad and Martin Jullum and Kjersti Aas},    
   journal = {TO BE ADDED},
   volume = {TO BE ADDED},
   pages = {TO BE ADDED},
