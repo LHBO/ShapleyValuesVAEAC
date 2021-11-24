@@ -91,7 +91,7 @@ print(explanation$dt)
 plot(explanation, plot_phi0 = FALSE)
 ```
 
-<img src="Vignette_results.png" width="100%" />
+<img src="figures/Vignette_results.png" width="100%" />
 
 
 
