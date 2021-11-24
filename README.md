@@ -102,7 +102,7 @@ If you find this code useful in your research, please consider citing our paper:
 ```
 @article{
   Olsen2021Shapley,
-  title={Using Shapley Values and Variational Autoencoders to Explain Predictive Models with Mixed Features},
+  title={Using Shapley Values and Variational Autoencoders to Explain Predictive Models with Dependent Mixed Features},
   author={Lars Henry Berge Olsen and Ingrid Kristine Glad and Martin Jullum and Kjersti Aas},    
   journal = {TO BE ADDED},
   volume = {TO BE ADDED},
