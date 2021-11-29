@@ -1,9 +1,9 @@
 # Shapley values and the VAEAC method
 
-In this GitHub repository, we present the implementation of the `VAEAC` approach from our paper "Using Shapley Values and Variational Autoencoders to Explain Predictive Models with Dependent Mixed Features", see [Olsen et al. (2021)](http://arxiv.com). 
+In this GitHub repository, we present the implementation of the `VAEAC` approach from our paper "Using Shapley Values and Variational Autoencoders to Explain Predictive Models with Dependent Mixed Features", see [Olsen et al. (2021)](https://arxiv.org/abs/2111.13507). 
 
 The variational autoencoder with arbitrary condiditioning (`VAEAC`) approach is based on the work of (Ivanov et al., 2019). The `VAEAC` is an extension of 
-the regular variational autoencoder (Kingma and Welling, 2019). Instead of giving a probabilistic representation for the distribution ![equation](https://latex.codecogs.com/svg.latex?p(\boldsymbol{x})) it gives a representation for the conditional ![equation](https://latex.codecogs.com/svg.latex?p(\boldsymbol{x}_{\mathcal{S}}&space;\mid&space;\boldsymbol{x}_{\bar{\mathcal{S}}})), for all possible feature subsets 
+the regular variational autoencoder (Kingma and Welling, 2019). Instead of giving a probabilistic representation for the distribution ![equation](https://latex.codecogs.com/svg.latex?p(\boldsymbol{x})) it gives a representation for the conditional distribution ![equation](https://latex.codecogs.com/svg.latex?p(\boldsymbol{x}_{\mathcal{S}}&space;\mid&space;\boldsymbol{x}_{\bar{\mathcal{S}}})), for all possible feature subsets 
 ![equation](https://latex.codecogs.com/svg.latex?\mathcal{S}\subseteq\mathcal{M}) simultaneously, where ![equation](https://latex.codecogs.com/svg.latex?\mathcal{M}) is the set of all features.
 
 To make the `VAEAC` methodology work in the Shapley value framework, established in the R-package [`Shapr`](https://github.com/NorskRegnesentral/shapr) (Sellereite and Jullum, 2019), we have made alterations to the [original implementation](https://github.com/tigvarts/vaeac) of Ivanov.
@@ -102,17 +102,14 @@ plot(explanation, plot_phi0 = FALSE)
 
 If you find this code useful in your research, please consider citing our paper:
 ```
-@article{
-  Olsen2021Shapley,
-  title={Using Shapley Values and Variational Autoencoders to Explain Predictive Models with Dependent Mixed Features},
-  author={Lars Henry Berge Olsen and Ingrid Kristine Glad and Martin Jullum and Kjersti Aas},    
-  journal = {TO BE ADDED},
-  volume = {TO BE ADDED},
-  pages = {TO BE ADDED},
-  year = {2021},
-  issn = {TO BE ADDED},
-  doi = {TO BE ADDED},
-  url = {TO BE ADDED}
+@misc{Olsen2021Shapley,
+      title={Using Shapley Values and Variational Autoencoders to Explain Predictive Models with Dependent Mixed Features}, 
+      author={Lars Henry Berge Olsen and Ingrid Kristine Glad and Martin Jullum and Kjersti Aas},
+      year={2021},
+      eprint={2111.13507},
+      archivePrefix={arXiv},
+      primaryClass={stat.ML},
+      url={https://arxiv.org/abs/2111.13507}
 }
 ```
 
@@ -121,6 +118,8 @@ If you find this code useful in your research, please consider citing our paper:
 Ivanov,  O.,  Figurnov,  M.,  and  Vetrov,  D.  (2019).  “Variational  Autoencoder  with  ArbitraryConditioning”. In:International Conference on Learning Representations.
 
 Kingma, D. P. and Welling, M. (2014). "Auto-Encoding Variational Bayes". In: 2nd International Conference on Learning Representations, ICLR 2014.
+
+Olsen, L. H. B., Glad, I. K., Jullum, M. and Aas, K. (2021). "Using Shapley Values and Variational Autoencoders to Explain Predictive Models with Dependent Mixed Features".
 
 Sellereite,  N.  and  Jullum,  M.  (2019).  “shapr:  An  R-package  for  explaining  machine  learningmodels with dependence-aware Shapley values”. In:Journal of Open Source Softwarevol. 5,no. 46, p. 2027.
 
