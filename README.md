@@ -36,10 +36,10 @@ library(ranger)
 library(data.table)
 
 # Load the R files needed for computing Shapley values using VAEAC.
-source("/Users/larsolsen/Desktop/PhD/R_Codes/Source_Shapr_VAEAC.R")
+source("ShapleyValuesVAEAC/Source_Shapr_VAEAC.R")
 
 # Set the working directory to be the root folder of the GitHub repository. 
-setwd("~/PhD/Paper1/Code_for_GitHub")
+setwd("ShapleyValuesVAEAC")
 
 # Read in the Abalone data set.
 abalone = readRDS("data/Abalone.data")
