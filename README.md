@@ -11,6 +11,7 @@ To make the `VAEAC` methodology work in the Shapley value framework, established
 The `VAEAC` model is implemented in Pytorch, hence, that portion of the repository is written in Python.
 To compute the Shapley values, we have written the necessary R-code to make the `VAEAC` approach run on top of the R-package `shapr`.
 
+NOTE: the code will be updated in week 16 to also include non-uniform masking schemes specified by the user.
 
 ## Setup
 
