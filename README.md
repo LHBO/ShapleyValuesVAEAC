@@ -1,7 +1,6 @@
 # Shapley values and the VAEAC method
 
-In this GitHub repository, we present the implementation of our `VAEAC` and ` ![equation](https://latex.codecogs.com/svg.latex?\texttt{VAEAC}_\mathcal{C}) ` 
-
+In this GitHub repository, we present the implementation of our `VAEAC` ![equation](https://latex.codecogs.com/svg.latex?\texttt{VAEAC}) and ![equation](https://latex.codecogs.com/svg.latex?\texttt{VAEAC}_\mathcal{C})
 `VAEAC<sub>C</sub>`
 approaches to Shapley value estimation from our paper "Using Shapley Values and Variational Autoencoders to Explain Predictive Models with Dependent Mixed Features", see [Olsen et al. (2022)](https://arxiv.org/abs/2111.13507). 
 
