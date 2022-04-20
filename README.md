@@ -1,10 +1,8 @@
 # Shapley values and the VAEAC method
 
-In this GitHub repository, we present the implementation of the `VAEAC` approach from our paper "Using Shapley Values and Variational Autoencoders to Explain Predictive Models with Dependent Mixed Features", see [Olsen et al. (2021)](https://arxiv.org/abs/2111.13507). 
+In this GitHub repository, we present the implementation of our `VAEAC` and `VAEAC_C` approaches to Shapley value estimation from our paper "Using Shapley Values and Variational Autoencoders to Explain Predictive Models with Dependent Mixed Features", see [Olsen et al. (2022)](https://arxiv.org/abs/2111.13507). 
 
-The variational autoencoder with arbitrary condiditioning (`VAEAC`) approach is based on the work of (Ivanov et al., 2019). The `VAEAC` is an extension of 
-the regular variational autoencoder (Kingma and Welling, 2019). Instead of giving a probabilistic representation for the distribution ![equation](https://latex.codecogs.com/svg.latex?p(\boldsymbol{x})) it gives a representation for the conditional distribution ![equation](https://latex.codecogs.com/svg.latex?p(\boldsymbol{x}_{\mathcal{S}}&space;\mid&space;\boldsymbol{x}_{\bar{\mathcal{S}}})), for all possible feature subsets 
-![equation](https://latex.codecogs.com/svg.latex?\mathcal{S}\subseteq\mathcal{M}) simultaneously, where ![equation](https://latex.codecogs.com/svg.latex?\mathcal{M}) is the set of all features.
+The variational autoencoder with arbitrary condiditioning (`VAEAC`) approach is based on the work of (Ivanov et al., 2019) and we extend it to `VAEAC_C` which employs a simple but effective masking scheme to Shapley value estimation in sampled high-dimensions, see [Olsen et al. (2022)]. The `VAEAC` is an extension of the regular variational autoencoder (Kingma and Welling, 2019). Instead of giving a probabilistic representation for the distribution ![equation](https://latex.codecogs.com/svg.latex?p(\boldsymbol{x})) it gives a representation for the conditional distribution ![equation](https://latex.codecogs.com/svg.latex?p(\boldsymbol{x}_{\mathcal{S}}&space;\mid&space;\boldsymbol{x}_{\bar{\mathcal{S}}})), for all possible feature subsets ![equation](https://latex.codecogs.com/svg.latex?\mathcal{S}\subseteq\mathcal{M}) simultaneously, where ![equation](https://latex.codecogs.com/svg.latex?\mathcal{M}) is the set of all features.
 
 To make the `VAEAC` methodology work in the Shapley value framework, established in the R-package [`Shapr`](https://github.com/NorskRegnesentral/shapr) (Sellereite and Jullum, 2019), we have made alterations to the [original implementation](https://github.com/tigvarts/vaeac) of Ivanov.
 
@@ -103,10 +101,10 @@ plot(explanation, plot_phi0 = FALSE)
 
 If you find this code useful in your research, please consider citing our paper:
 ```
-@misc{Olsen2021Shapley,
+@misc{Olsen2022Shapley,
       title={Using Shapley Values and Variational Autoencoders to Explain Predictive Models with Dependent Mixed Features}, 
       author={Lars Henry Berge Olsen and Ingrid Kristine Glad and Martin Jullum and Kjersti Aas},
-      year={2021},
+      year={2022},
       eprint={2111.13507},
       archivePrefix={arXiv},
       primaryClass={stat.ML},
