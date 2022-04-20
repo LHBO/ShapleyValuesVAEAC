@@ -317,9 +317,10 @@ class CategoricalToOneHotLayer(Module):
                 rather than torch.tensor(sourceTensor).
                 cat_idx = torch.tensor(input[:, i])
                 """
-                cat_idx = torch.tensor(input[:, i])
-                # Line below does not work. Use the one above even thoug it gives a warning.
-                # cat_idx = input[:, i].clone().detach().requires_grad_(True)
+                #cat_idx = input[:, i].clone().detach()
+                # OLD Line below does not work. Use the one above even though it gives a warning.
+                # cat_idx = torch.tensor(input[:, i])
+                cat_idx = input[:, i].clone().detach()
                 # Check if any of the categories are nan / missing
                 nan_mask = torch.isnan(cat_idx)
                 # Set the nan values to 0

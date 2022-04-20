@@ -87,6 +87,9 @@ add_vaeac_to_explainer = function(explainer,
                                   lr = 0.001,
                                   batch_size = 64L,
                                   running_avg_num_values = 5L,
+                                  use_skip_connections = TRUE,
+                                  mask_generator_only_these_coalitions=NULL,
+                                  mask_generator_only_these_coalitions_probabilities=NULL,
                                   verbose = FALSE,
                                   verbose_init = FALSE,
                                   verbose_summary = FALSE,
@@ -227,6 +230,9 @@ add_vaeac_to_explainer = function(explainer,
                             lr = lr,
                             batch_size = batch_size,
                             running_avg_num_values = running_avg_num_values,
+                            use_skip_connections = use_skip_connections,
+                            mask_generator_only_these_coalitions=mask_generator_only_these_coalitions,
+                            mask_generator_only_these_coalitions_probabilities=mask_generator_only_these_coalitions_probabilities,
                             verbose = verbose,
                             verbose_init = verbose_init,
                             verbose_summary = verbose_summary)
@@ -258,7 +264,10 @@ add_vaeac_to_explainer = function(explainer,
                                        latent_dim = latent_dim,
                                        lr = lr,
                                        batch_size = batch_size,
-                                       running_avg_num_values = running_avg_num_values)
+                                       running_avg_num_values = running_avg_num_values,
+                                       use_skip_connections = use_skip_connections,
+                                       mask_generator_only_these_coalitions=mask_generator_only_these_coalitions,
+                                       mask_generator_only_these_coalitions_probabilities=mask_generator_only_these_coalitions_probabilities)
     
     # Add this to the explainer object
     explainer$VAEAC = list(models     = vaeac_models_aux,
@@ -311,7 +320,7 @@ explain.vaeac = function(x, explainer, approach, prediction_zero, which_vaeac_mo
             Fall back to 'best', and continue the computaions.")
   }
   
-  # If data set contains categorical values we need to update the
+  # If dataset contains categorical values we need to update the
   # data.table so assert that we have the right levels for each factors.
   categorical_col = unname(explainer$feature_list$classes == "factor")
   categorical_in_data_set = sum(categorical_col) > 0
@@ -354,14 +363,13 @@ explain.vaeac = function(x, explainer, approach, prediction_zero, which_vaeac_mo
   return(r)
 }
 
-
 # This is an internal function that should not be directly called by the user.
 # It should only be called from the 'explain.vaeac()' function.
 # This function samples data from a VAEAC stored in the explainer object.
 # Originally called 'x' in this function in shapr package.
 prepare_data.vaeac = function(explainer, seed = 1996, n_samples = 1e3L, index_features = NULL, verbose = TRUE, ...) {
   # Do not currently support 'index_features'.
-
+  
   # These are additional column names in the data table with the 
   # imputed instances that we return in the end
   id = id_combination = w = NULL # due to NSE notes in R CMD check
@@ -472,7 +480,6 @@ prepare_data.vaeac = function(explainer, seed = 1996, n_samples = 1e3L, index_fe
     # Remove the first and last coalition (all variables unknown or known),
     # as these coalitions are not used to compute the shapley values.
     data_instance_i = data_instance_i[-c(1, n_coalitions), , drop=FALSE]
-    
 
     # Compute num_imputations for all 2^p-2 coalitions for the i'th instance.
     # By using the VAEAC-model saved in the explainer object.
@@ -481,16 +488,23 @@ prepare_data.vaeac = function(explainer, seed = 1996, n_samples = 1e3L, index_fe
                                                  num_imputations = as.integer(n_samples),
                                                  use_cuda = explainer$VAEAC$parameters$use_cuda,
                                                  one_hot_max_sizes = explainer$VAEAC$parameters$one_hot_max_sizes,
+                                                 use_skip_connections = explainer$VAEAC$parameters$use_skip_connections,
                                                  verbose = explainer$VAEAC$parameters$verbose_summary)
-    
+    # The VAEAC_conditional_data object is a 3D array with the shape
+    # (n_coalitions-2, n_samples, n_variables). 
+    # To continue to use the shapr framework, we need to convert it into
+    # a two dimensional data table. In addition, we need to add a row of
+    # the full instance at the top and bottom of this data table, which
+    # corresponds to the first and last coalition.
+    # The method bellow does this, but not ultra-efficiently.
     aux = apply(apply(VAEAC_conditional_data, c(3,1), identity), 2, identity)
     id_combination_array = as.integer(c(1, rep(seq(2, n_coalitions-1), each = n_samples), n_coalitions))
     aux3 = data.table(id_combination = id_combination_array,
                       rbind(x_test_updated[i,], 
                             aux, 
                             x_test_updated[i,]))
-
-    # Set the column-names
+    
+    # Set the column names
     setnames(aux3, c("id_combination", explainer$feature_list$labels))
     
     # Save the data for the i'th test observation in the dt list 
@@ -499,7 +513,7 @@ prepare_data.vaeac = function(explainer, seed = 1996, n_samples = 1e3L, index_fe
     # Add a column with the sampling weights. 
     # This is just 1/n_samples in the case of VAEAC 
     # as we can sample as many instances as we will, 
-    # in contrast to the emperical and ctree approach.
+    # in contrast to the empirical and ctree approach.
     dt_l[[i]][, w := 1]
     dt_l[[i]][-c(1, nrow(dt_l[[i]])), w := 1 / n_samples]
     
