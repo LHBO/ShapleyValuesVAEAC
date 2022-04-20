@@ -171,7 +171,7 @@ Ivanov,  O.,  Figurnov,  M.,  and  Vetrov,  D.  (2019).  “Variational  Autoenc
 
 Kingma, D. P. and Welling, M. (2014). "Auto-Encoding Variational Bayes". In: 2nd International Conference on Learning Representations, ICLR 2014.
 
-Olsen, L. H. B., Glad, I. K., Jullum, M. and Aas, K. (2021). "Using Shapley Values and Variational Autoencoders to Explain Predictive Models with Dependent Mixed Features".
+Olsen, L. H. B., Glad, I. K., Jullum, M. and Aas, K. (2022). "Using Shapley Values and Variational Autoencoders to Explain Predictive Models with Dependent Mixed Features".
 
 Sellereite,  N.  and  Jullum,  M.  (2019).  “shapr:  An  R-package  for  explaining  machine  learningmodels with dependence-aware Shapley values”. In:Journal of Open Source Softwarevol. 5,no. 46, p. 2027.
 
