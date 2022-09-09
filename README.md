@@ -154,14 +154,14 @@ plot(explanation_sampled, plot_phi0 = FALSE)
 
 If you find this code useful in your research, please consider citing our paper:
 ```
-@misc{Olsen2022Shapley,
-      title={Using Shapley Values and Variational Autoencoders to Explain Predictive Models with Dependent Mixed Features}, 
-      author={Lars Henry Berge Olsen and Ingrid Kristine Glad and Martin Jullum and Kjersti Aas},
-      year={2022},
-      eprint={2111.13507},
-      archivePrefix={arXiv},
-      primaryClass={stat.ML},
-      url={https://arxiv.org/abs/2111.13507}
+@article{olsen2022using,
+  title={Using Shapley Values and Variational Autoencoders to Explain Predictive Models with Dependent Mixed Features},
+  author={Olsen, Lars Henry Berge and Glad, Ingrid Kristine and Jullum, Martin and Aas, Kjersti},
+  journal={Journal of Machine Learning Research},
+  volume={23},
+  number={213},
+  pages={1--51},
+  year={2022}
 }
 ```
 
